@@ -25,5 +25,11 @@
             Matrix matrix = new Matrix(totalSum);
             return matrix;
         }
+
+        public int this[int index1, int index2]
+        {
+            get => array[index1, index2];
+            set => array[index1, index2] = value;
+        }
     }
 }
