@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics.Metrics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -9,14 +9,34 @@ namespace WPFMatrixOperations
 {
     public partial class MainWindow : Window
     {
+        private List<Matrix> _matrices;
+        private int N;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            AmendMatrix(matrix1DataGrid);
-            AmendMatrix(matrix2DataGrid);
+            AmendMatrix(matrixADataGrid);
+            AmendMatrix(matrixBDataGrid);
+            AmendMatrix(matrixCDataGrid);
 
             btnEnter.Click += BtnEnter_Click;
+            btnCalculate.Click += BtnCalculateSum_Click;
+        }
+
+        private void BtnCalculateSum_Click(object sender, RoutedEventArgs e)
+        {
+            Matrix resultMatrix = _matrices[0] + _matrices[1];
+
+            matrixCDataGrid.ItemsSource = ConvertArrayToDataTable(resultMatrix.Array).DefaultView;
+            matrixCDataGrid.Columns.Clear();
+
+            for (int i = 0; i < N; i++)
+            {
+                DataGridTextColumn column = new DataGridTextColumn();
+                column.Binding = new Binding("[" + i + "]");
+                matrixCDataGrid.Columns.Add(column);
+            }
         }
 
         private void AmendMatrix(DataGrid matrixDataGrid)
@@ -29,13 +49,15 @@ namespace WPFMatrixOperations
 
         private void BtnEnter_Click(object sender, RoutedEventArgs e)
         {
-            int N = Convert.ToInt32(tbSizeInput.Text);
+            btnCalculate.IsEnabled = true;
+            N = Convert.ToInt32(tbSizeInput.Text);
+            _matrices = new List<Matrix>(2);
 
-            ChangeValueForMatrix(N, matrix1DataGrid);
-            ChangeValueForMatrix(N, matrix2DataGrid);
+            ChangeValueForMatrix(matrixADataGrid);
+            ChangeValueForMatrix(matrixBDataGrid);
         }
 
-        private void ChangeValueForMatrix(int N, DataGrid matrixDataGrid)
+        private void ChangeValueForMatrix(DataGrid matrixDataGrid)
         {
             bool randomize = cbRandomize.IsChecked.Value;
             int[,] array = new int[N, N];
@@ -48,13 +70,17 @@ namespace WPFMatrixOperations
             }
 
             matrixDataGrid.ItemsSource = ConvertArrayToDataTable(array).DefaultView;
+
             matrixDataGrid.Columns.Clear();
             for (int i = 0; i < N; i++)
             {
                 DataGridTextColumn column = new DataGridTextColumn();
                 column.Binding = new Binding("[" + i + "]");
                 matrixDataGrid.Columns.Add(column);
-            }
+            }            
+            
+            Matrix matrix = new Matrix(array);
+            _matrices.Add(matrix);
         }
 
         private DataTable ConvertArrayToDataTable(int[,] array)

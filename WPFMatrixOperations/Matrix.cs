@@ -1,22 +1,29 @@
-﻿using System.Collections.Generic;
-
-namespace WPFMatrixOperations
+﻿namespace WPFMatrixOperations
 {
-    /*
     public class Matrix
     {
-        public List<MatrixItem> Data { get; set; }
+        private readonly int[,] array;
+        public int[,] Array => array;
 
         public Matrix(int[,] array)
         {
-            Data = new List<MatrixItem>();
-            for (int i = 0; i < array.GetLength(0); i++)
+            this.array = array;
+        }
+
+        public static Matrix operator +(Matrix a, Matrix b)
+        {
+            var N = b.array.GetLength(0);
+            int[,] totalSum = new int[N, N];
+
+            for (int i = 0; i < N; i++)
             {
-                for (int j = 0; j < array.GetLength(1); j++)
+                for (int j = 0; j < N; j++)
                 {
-                    Data.Add(new MatrixItem { Row = i, Column = j, Value = array[i, j] });
+                    totalSum[i, j] = a.array[i, j] + b.array[i, j];
                 }
             }
+            Matrix matrix = new Matrix(totalSum);
+            return matrix;
         }
-    }*/
+    }
 }
