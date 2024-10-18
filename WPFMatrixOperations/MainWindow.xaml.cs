@@ -13,34 +13,37 @@ namespace WPFMatrixOperations
         {
             InitializeComponent();
 
-            /*
-            int[,] array = new int[,]
-            {
-            {1, 2, 3, 4},
-            {5, 6, 7, 8},
-            {9, 10, 11,12 },
-            {13, 14, 15, 16}
-            };
-            */            
+            AmendMatrix(matrix1DataGrid);
+            AmendMatrix(matrix2DataGrid);
+
+            btnEnter.Click += BtnEnter_Click;
+        }
+
+        private void AmendMatrix(DataGrid matrixDataGrid)
+        {
             matrixDataGrid.CanUserAddRows = false;
             matrixDataGrid.CanUserDeleteRows = true;
             matrixDataGrid.CanUserReorderColumns = true;
             matrixDataGrid.CanUserSortColumns = false;
-            btnEnter.Click += BtnEnter_Click;            
-            
-
         }
 
         private void BtnEnter_Click(object sender, RoutedEventArgs e)
         {
             int N = Convert.ToInt32(tbSizeInput.Text);
+
+            ChangeValueForMatrix(N, matrix1DataGrid);
+            ChangeValueForMatrix(N, matrix2DataGrid);
+        }
+
+        private void ChangeValueForMatrix(int N, DataGrid matrixDataGrid)
+        {
             bool randomize = cbRandomize.IsChecked.Value;
             int[,] array = new int[N, N];
             for (int i = 0; i < N; i++)
             {
                 for (int j = 0; j < N; j++)
                 {
-                    array[i, j] = randomize? Random.Shared.Next(10): 0;
+                    array[i, j] = randomize ? Random.Shared.Next(10) : 0;
                 }
             }
 
