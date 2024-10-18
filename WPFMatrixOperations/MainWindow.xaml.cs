@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Diagnostics.Metrics;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,6 +13,7 @@ namespace WPFMatrixOperations
         {
             InitializeComponent();
 
+            /*
             int[,] array = new int[,]
             {
             {1, 2, 3, 4},
@@ -19,21 +21,37 @@ namespace WPFMatrixOperations
             {9, 10, 11,12 },
             {13, 14, 15, 16}
             };
-
-
+            */            
             matrixDataGrid.CanUserAddRows = false;
             matrixDataGrid.CanUserDeleteRows = true;
             matrixDataGrid.CanUserReorderColumns = true;
             matrixDataGrid.CanUserSortColumns = false;
+            btnEnter.Click += BtnEnter_Click;            
+            
+
+        }
+
+        private void BtnEnter_Click(object sender, RoutedEventArgs e)
+        {
+            int N = Convert.ToInt32(tbSizeInput.Text);
+            bool randomize = cbRandomize.IsChecked.Value;
+            int[,] array = new int[N, N];
+            for (int i = 0; i < N; i++)
+            {
+                for (int j = 0; j < N; j++)
+                {
+                    array[i, j] = randomize? Random.Shared.Next(10): 0;
+                }
+            }
+
             matrixDataGrid.ItemsSource = ConvertArrayToDataTable(array).DefaultView;
-            /*
-            for (int i = 0; i < array.GetLength(1); i++)
+            matrixDataGrid.Columns.Clear();
+            for (int i = 0; i < N; i++)
             {
                 DataGridTextColumn column = new DataGridTextColumn();
                 column.Binding = new Binding("[" + i + "]");
                 matrixDataGrid.Columns.Add(column);
             }
-            */
         }
 
         private DataTable ConvertArrayToDataTable(int[,] array)

@@ -7,6 +7,10 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="500" Width="600">
     <Grid>
-        <DataGrid ColumnWidth="*" Background="Aqua" x:Name="matrixDataGrid" AutoGenerateColumns="True" Height="255" VerticalAlignment="Center" Margin="128,0,128,0"/>
+        <DataGrid ColumnWidth="*" Background="Aqua" x:Name="matrixDataGrid" AutoGenerateColumns="False" Height="255" VerticalAlignment="Center" Margin="128,0,128,0"/>
+        <TextBlock HorizontalAlignment="Left" Margin="128,35,0,0" TextWrapping="Wrap" Text="Введите размерность" VerticalAlignment="Top"/>
+        <TextBox Name="tbSizeInput" HorizontalAlignment="Left" Margin="260,35,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+        <Button Name="btnEnter" Content="Построить" HorizontalAlignment="Left" Margin="396,34,0,0" VerticalAlignment="Top"/>
+        <CheckBox Name="cbRandomize" IsChecked="True"  Content="Заполнить случайно" HorizontalAlignment="Left" Margin="396,59,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>
