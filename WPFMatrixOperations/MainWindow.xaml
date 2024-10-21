@@ -7,16 +7,16 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800">
     <Grid>
-        <DataGrid Height="auto" ColumnWidth="*" Background="Aqua" x:Name="matrixADataGrid" AutoGenerateColumns="False" VerticalAlignment="Top" Margin="451,154,19,0"/>
-        <DataGrid Height="auto" ColumnWidth="*" Background="Aqua" x:Name="matrixBDataGrid" AutoGenerateColumns="False" VerticalAlignment="Top" Margin="70,154,400,0"/>
+        <DataGrid Height="auto" ColumnWidth="auto" Background="Aqua" x:Name="matrixADataGrid" AutoGenerateColumns="False" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="456,154,0,0"/>
+        <DataGrid Height="auto" ColumnWidth="auto" Background="Aqua" x:Name="matrixBDataGrid" AutoGenerateColumns="False" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="70,154,400,0"/>
         <TextBlock HorizontalAlignment="Left" Margin="128,35,0,0" TextWrapping="Wrap" Text="Введите размерность" VerticalAlignment="Top"/>
         <TextBox Name="tbSizeInput" HorizontalAlignment="Left" Margin="260,35,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
         <Button Name="btnEnter" Content="Построить" HorizontalAlignment="Left" Margin="396,34,0,0" VerticalAlignment="Top"/>
         <CheckBox Name="cbRandomize" IsChecked="True"  Content="Заполнить случайно" HorizontalAlignment="Left" Margin="396,59,0,0" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="54,153,0,0" TextWrapping="Wrap" Text="A" VerticalAlignment="Top" Width="65"/>
-        <TextBlock HorizontalAlignment="Left" Margin="430,153,0,0" TextWrapping="Wrap" Text="B" VerticalAlignment="Top" Width="65"/>
-        <DataGrid Height="auto" ColumnWidth="*" Background="Aqua" x:Name="matrixCDataGrid" AutoGenerateColumns="False" VerticalAlignment="Top" Margin="262,423,208,0"/>
-        <TextBlock HorizontalAlignment="Left" Margin="219,420,0,0" TextWrapping="Wrap" Text="C" VerticalAlignment="Top" Width="65"/>
+        <TextBlock HorizontalAlignment="Right" Margin="0,153,296,0" TextWrapping="Wrap" Text="B" VerticalAlignment="Top" Width="65"/>
+        <DataGrid Height="auto" ColumnWidth="auto" Background="Aqua" x:Name="matrixCDataGrid" AutoGenerateColumns="False" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,90" RenderTransformOrigin="0.722,1.667"/>
+        <TextBlock Margin="363,468,0,0" TextWrapping="Wrap" Text="C" VerticalAlignment="Top" HorizontalAlignment="Left" Width="12" Height="15"/>
         <Button IsEnabled="False" x:Name="btnCalculate" Content="Рассчитать" HorizontalAlignment="Left" Margin="482,34,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>

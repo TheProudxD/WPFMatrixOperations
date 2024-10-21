@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Data;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace WPFMatrixOperations
 {
     public partial class MainWindow : Window
     {
-        private Matrix? _matrixA;
-        private Matrix? _matrixB;
-
-        private int N;
+        private readonly MatricesController<int> _matrixController = new();
 
         public MainWindow()
         {
@@ -23,22 +20,24 @@ namespace WPFMatrixOperations
 
             btnEnter.Click += BtnEnter_Click;
             btnCalculate.Click += BtnCalculateSum_Click;
-            matrixADataGrid.CellEditEnding += MatrixADataGrid_CellEditEnding;
-            matrixBDataGrid.CellEditEnding += MatrixBDataGrid_CellEditEnding;
+            matrixADataGrid.CellEditEnding += MatrixDataGrid_CellEditEnding;
+            matrixBDataGrid.CellEditEnding += MatrixDataGrid_CellEditEnding;
         }
 
-        private void MatrixADataGrid_CellEditEnding(object? sender, DataGridCellEditEndingEventArgs e) => _matrixA[e.Row.GetIndex(), e.Column.DisplayIndex] = Convert.ToInt32((e.EditingElement as TextBox).Text);
-
-        private void MatrixBDataGrid_CellEditEnding(object? sender, DataGridCellEditEndingEventArgs e) => _matrixB[e.Row.GetIndex(), e.Column.DisplayIndex] = Convert.ToInt32((e.EditingElement as TextBox).Text);
+        private void MatrixDataGrid_CellEditEnding(object? sender, DataGridCellEditEndingEventArgs e)
+        {
+            var x = e.Row.GetIndex();
+            var y = e.Column.DisplayIndex;
+            var value = Convert.ToInt32(((TextBox)e.EditingElement).Text);
+            _matrixController.ChangeValueForMatrixAt((DataGrid)sender, x, y, value);
+        }
 
         private void BtnCalculateSum_Click(object sender, RoutedEventArgs e)
         {
-            Matrix resultMatrix = _matrixA + _matrixB;
-
-            matrixCDataGrid.ItemsSource = ConvertArrayToDataTable(resultMatrix.Array).DefaultView;
+            matrixCDataGrid.ItemsSource = _matrixController.GetSumData();
             matrixCDataGrid.Columns.Clear();
 
-            for (int i = 0; i < N; i++)
+            for (int i = 0; i < 2; i++)
             {
                 DataGridTextColumn column = new DataGridTextColumn();
                 column.Binding = new Binding("[" + i + "]");
@@ -57,10 +56,10 @@ namespace WPFMatrixOperations
         private void BtnEnter_Click(object sender, RoutedEventArgs e)
         {
             btnCalculate.IsEnabled = true;
-            N = Convert.ToInt32(tbSizeInput.Text);
+            var size = Convert.ToInt32(tbSizeInput.Text);
 
-            _matrixA = null;
-            _matrixB = null;
+            _matrixController.SetMatricesSize(size);
+            _matrixController.Clear();
             ChangeValueForMatrix(matrixADataGrid);
             ChangeValueForMatrix(matrixBDataGrid);
         }
@@ -68,53 +67,17 @@ namespace WPFMatrixOperations
         private void ChangeValueForMatrix(DataGrid matrixDataGrid)
         {
             bool randomize = cbRandomize.IsChecked.Value;
-            int[,] array = new int[N, N];
-            for (int i = 0; i < N; i++)
-            {
-                for (int j = 0; j < N; j++)
-                {
-                    array[i, j] = randomize ? Random.Shared.Next(10) : 0;
-                }
-            }
-
-            matrixDataGrid.ItemsSource = ConvertArrayToDataTable(array).DefaultView;
 
             matrixDataGrid.Columns.Clear();
-            for (int i = 0; i < N; i++)
+
+            for (int i = 0; i < 2; i++)
             {
                 DataGridTextColumn column = new DataGridTextColumn();
                 column.Binding = new Binding("[" + i + "]");
                 matrixDataGrid.Columns.Add(column);
-            }
-
-            Matrix matrix = new Matrix(array);
-
-            if (_matrixA == null)
-                _matrixA = matrix;
-            else
-                _matrixB = matrix;
-        }
-
-        private DataTable ConvertArrayToDataTable(int[,] array)
-        {
-            DataTable dataTable = new DataTable();
-
-            for (int i = 0; i < array.GetLength(1); i++)
-            {
-                dataTable.Columns.Add("Column " + (i + 1));
-            }
-
-            for (int i = 0; i < array.GetLength(0); i++)
-            {
-                DataRow row = dataTable.NewRow();
-                for (int j = 0; j < array.GetLength(1); j++)
-                {
-                    row[j] = array[i, j];
-                }
-                dataTable.Rows.Add(row);
-            }
-
-            return dataTable;
+            }            
+            
+            matrixDataGrid.ItemsSource = _matrixController.GetMatrixData(matrixDataGrid, randomize);
         }
     }
 }
