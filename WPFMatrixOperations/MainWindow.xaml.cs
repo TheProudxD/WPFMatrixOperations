@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Media;
 
 namespace WPFMatrixOperations
 {
@@ -18,13 +16,30 @@ namespace WPFMatrixOperations
             AmendMatrix(matrixBDataGrid);
             AmendMatrix(matrixCDataGrid);
 
-            btnEnter.Click += BtnEnter_Click;
-            btnCalculate.Click += BtnCalculateSum_Click;
-            matrixADataGrid.CellEditEnding += MatrixDataGrid_CellEditEnding;
-            matrixBDataGrid.CellEditEnding += MatrixDataGrid_CellEditEnding;
+            btnEnter.IsEnabled = false;
+            btnCalculate.IsEnabled = false;
+            cbRandomize.IsChecked = true;
+            cbSquareMatrix.IsChecked = true;
+
+            SubscribeOnUI();
         }
 
-        private void MatrixDataGrid_CellEditEnding(object? sender, DataGridCellEditEndingEventArgs e)
+        private void SubscribeOnUI()
+        {
+            tbFirstSizeInput.TextChanged += OnSizeInput;
+            btnEnter.Click += BtnEnter_Click;
+            btnCalculate.Click += OnCalculateSumButtonClick;
+            matrixADataGrid.CellEditEnding += OnMatrixCellEdit;
+            matrixBDataGrid.CellEditEnding += OnMatrixCellEdit;
+        }
+
+        private void OnSizeInput(object sender, TextChangedEventArgs e)
+        {
+            bool isDigit = int.TryParse(((TextBox)e.Source).Text, out var _);
+            btnEnter.IsEnabled = isDigit;
+        }
+
+        private void OnMatrixCellEdit(object? sender, DataGridCellEditEndingEventArgs e)
         {
             var x = e.Row.GetIndex();
             var y = e.Column.DisplayIndex;
@@ -32,17 +47,10 @@ namespace WPFMatrixOperations
             _matrixController.ChangeValueForMatrixAt((DataGrid)sender, x, y, value);
         }
 
-        private void BtnCalculateSum_Click(object sender, RoutedEventArgs e)
-        {
-            matrixCDataGrid.ItemsSource = _matrixController.GetSumData();
+        private void OnCalculateSumButtonClick(object sender, RoutedEventArgs e)
+        {            
             matrixCDataGrid.Columns.Clear();
-
-            for (int i = 0; i < 2; i++)
-            {
-                DataGridTextColumn column = new DataGridTextColumn();
-                column.Binding = new Binding("[" + i + "]");
-                matrixCDataGrid.Columns.Add(column);
-            }
+            matrixCDataGrid.ItemsSource = _matrixController.GetSumData();
         }
 
         private void AmendMatrix(DataGrid matrixDataGrid)
@@ -56,10 +64,11 @@ namespace WPFMatrixOperations
         private void BtnEnter_Click(object sender, RoutedEventArgs e)
         {
             btnCalculate.IsEnabled = true;
-            var size = Convert.ToInt32(tbSizeInput.Text);
+            var size = Convert.ToInt32(tbFirstSizeInput.Text);
 
-            _matrixController.SetMatricesSize(size);
+            _matrixController.Size = size;
             _matrixController.Clear();
+
             ChangeValueForMatrix(matrixADataGrid);
             ChangeValueForMatrix(matrixBDataGrid);
         }
@@ -68,16 +77,17 @@ namespace WPFMatrixOperations
         {
             bool randomize = cbRandomize.IsChecked.Value;
 
-            matrixDataGrid.Columns.Clear();
-
-            for (int i = 0; i < 2; i++)
-            {
-                DataGridTextColumn column = new DataGridTextColumn();
-                column.Binding = new Binding("[" + i + "]");
-                matrixDataGrid.Columns.Add(column);
-            }            
-            
+            matrixDataGrid.Columns.Clear();         
             matrixDataGrid.ItemsSource = _matrixController.GetMatrixData(matrixDataGrid, randomize);
+        }
+
+        ~MainWindow()
+        {
+            tbFirstSizeInput.TextChanged += OnSizeInput;
+            btnEnter.Click -= BtnEnter_Click;
+            btnCalculate.Click -= OnCalculateSumButtonClick;
+            matrixADataGrid.CellEditEnding -= OnMatrixCellEdit;
+            matrixBDataGrid.CellEditEnding -= OnMatrixCellEdit;
         }
     }
 }

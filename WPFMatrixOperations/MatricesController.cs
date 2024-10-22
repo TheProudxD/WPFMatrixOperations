@@ -11,36 +11,33 @@ namespace WPFMatrixOperations
     {
         private readonly Dictionary<DataGrid, Matrix<T>> _matrixTable = new();
 
-        private int _matrixSize;
+        public int Size { get; set; }
 
-        public void SetMatricesSize(int size) => _matrixSize = size;
-
-        private T[,] CreateDataArray(bool randomize)
+        private T[,] CreateDataArray(bool randomize, int maxValue = 10)
         {
-            int max = 10;
-            Random random = new Random();
-            T[,] array = new T[_matrixSize, _matrixSize];
-            for (int i = 0; i < _matrixSize; i++)
+            Random random = new();
+            T[,] array = new T[Size, Size];
+            for (int i = 0; i < Size; i++)
             {
-                for (int j = 0; j < _matrixSize; j++)
+                for (int j = 0; j < Size; j++)
                 {
                     T value = default;
 
                     if (typeof(T) == typeof(int))
                     {
-                        value = (T)(object)random.Next(max);
+                        value = (T)(object)random.Next(maxValue);
                     }
                     else if (typeof(T) == typeof(double))
                     {
-                        value = (T)(object)(random.NextDouble()* max);
+                        value = (T)(object)(random.NextDouble()* maxValue);
                     }
                     else if (typeof(T) == typeof(float))
                     {
-                        value = (T)(object)(random.NextSingle() * max);
+                        value = (T)(object)(random.NextSingle() * maxValue);
                     }
                     else if (typeof(T) == typeof(long))
                     {
-                        value = (T)(object)random.NextInt64(max);
+                        value = (T)(object)random.NextInt64(maxValue);
                     }
                     else
                     {
@@ -54,7 +51,7 @@ namespace WPFMatrixOperations
             return array;
         }
 
-        public void Add(DataGrid matrixDataGrid, T[,] array)
+        private void Add(DataGrid matrixDataGrid, T[,] array)
         {
             Matrix<T> matrix = new(array);
             if (_matrixTable.ContainsKey(matrixDataGrid) == false)
@@ -67,25 +64,20 @@ namespace WPFMatrixOperations
             }
         }
 
-        public void Clear()
-        {
-            _matrixTable.Clear();
-        }
+        public void Clear() => _matrixTable.Clear();
 
         public DataView GetSumData() => ConvertArrayToDataTable(FindSum().Array);
 
         public DataView GetMatrixData(DataGrid dataGrid, bool randomize)
         {
             var array = CreateDataArray(randomize);
-            Matrix<T> matrix = new(array);
-            _matrixTable.Add(dataGrid, matrix);
+            Add(dataGrid, array);
             return ConvertArrayToDataTable(array);
         }
 
         private Matrix<T> FindSum()
         {
-            var N = _matrixTable.First().Value.Array.Length;
-            Matrix<T> resultMatrix = new(new T[N, N]);
+            Matrix<T> resultMatrix = new(new T[Size, Size]);
             _matrixTable.Values.ToList().ForEach(x => resultMatrix += x);
             return resultMatrix;
         }
@@ -112,9 +104,9 @@ namespace WPFMatrixOperations
             return dataTable.DefaultView;
         }
 
-        public void ChangeValueForMatrixAt(DataGrid? sender, int x, int y, T value)
+        public void ChangeValueForMatrixAt(DataGrid dataGrid, int x, int y, T value)
         {
-            var matrix = _matrixTable[sender];
+            var matrix = _matrixTable[dataGrid];
             matrix[x, y] = value;
         }
     }

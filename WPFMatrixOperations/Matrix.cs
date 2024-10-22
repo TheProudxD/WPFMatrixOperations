@@ -19,7 +19,7 @@
             {
                 for (int j = 0; j < N; j++)
                 {
-                    totalSum[i, j] = (T)(a.array[i, j] as dynamic + b.array[i, j] as dynamic);
+                    totalSum[i, j] = (T)((a.array[i, j] as dynamic) + b.array[i, j]);
                 }
             }
             Matrix<T> matrix = new Matrix<T>(totalSum);
