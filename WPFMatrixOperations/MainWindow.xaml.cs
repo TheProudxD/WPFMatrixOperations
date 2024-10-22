@@ -8,6 +8,10 @@ namespace WPFMatrixOperations
     {
         private readonly MatricesController<int> _matrixController = new();
 
+        private bool _isFirstInputEntered;
+        private bool _isSquareMatrix;
+        private bool _isSecondInputEntered;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -21,29 +25,61 @@ namespace WPFMatrixOperations
             cbRandomize.IsChecked = true;
             cbSquareMatrix.IsChecked = true;
 
+            OnSquareMatrixChecked(null, null);
             SubscribeOnUI();
         }
 
         private void SubscribeOnUI()
         {
+            cbSquareMatrix.Click += OnSquareMatrixChecked;
             tbFirstSizeInput.TextChanged += OnSizeInput;
-            btnEnter.Click += BtnEnter_Click;
+            tbSecondSizeInput.TextChanged += OnSizeInput;
+            btnEnter.Click += OnCalculateButtonClick;
             btnCalculate.Click += OnCalculateSumButtonClick;
             matrixADataGrid.CellEditEnding += OnMatrixCellEdit;
             matrixBDataGrid.CellEditEnding += OnMatrixCellEdit;
         }
 
+        private void AmendMatrix(DataGrid matrixDataGrid)
+        {
+            matrixDataGrid.CanUserAddRows = false;
+            matrixDataGrid.CanUserDeleteRows = false;
+            matrixDataGrid.CanUserReorderColumns = true;
+            matrixDataGrid.CanUserSortColumns = false;
+        }
+
+        private void OnSquareMatrixChecked(object sender, RoutedEventArgs e)
+        {
+            _isSquareMatrix = cbSquareMatrix.IsChecked.Value;
+            tbSecondSizeInput.Visibility = _isSquareMatrix ? Visibility.Hidden : Visibility.Visible;
+            ChangeEnterButtonState();
+        }
+
         private void OnSizeInput(object sender, TextChangedEventArgs e)
         {
-            bool isDigit = int.TryParse(((TextBox)e.Source).Text, out var _);
-            btnEnter.IsEnabled = isDigit;
+            TextBox textBox = (TextBox)e.Source;
+            string content = textBox.Text;
+            bool valid = content.IsDigit(out int result) && result.MoreThanZero();
+
+            if (textBox == tbFirstSizeInput)
+            {
+                _isFirstInputEntered = valid;
+            }
+            else if (textBox == tbSecondSizeInput)
+            {
+                _isSecondInputEntered = valid;
+            }
+
+            ChangeEnterButtonState();
         }
+
+        private void ChangeEnterButtonState() => btnEnter.IsEnabled = _isSquareMatrix ? _isFirstInputEntered : _isFirstInputEntered && _isSecondInputEntered;
 
         private void OnMatrixCellEdit(object? sender, DataGridCellEditEndingEventArgs e)
         {
-            var x = e.Row.GetIndex();
-            var y = e.Column.DisplayIndex;
-            var value = Convert.ToInt32(((TextBox)e.EditingElement).Text);
+            int x = e.Row.GetIndex();
+            int y = e.Column.DisplayIndex;
+            int value = Convert.ToInt32(((TextBox)e.EditingElement).Text);
             _matrixController.ChangeValueForMatrixAt((DataGrid)sender, x, y, value);
         }
 
@@ -53,24 +89,31 @@ namespace WPFMatrixOperations
             matrixCDataGrid.ItemsSource = _matrixController.GetSumData();
         }
 
-        private void AmendMatrix(DataGrid matrixDataGrid)
-        {
-            matrixDataGrid.CanUserAddRows = false;
-            matrixDataGrid.CanUserDeleteRows = true;
-            matrixDataGrid.CanUserReorderColumns = true;
-            matrixDataGrid.CanUserSortColumns = false;
-        }
-
-        private void BtnEnter_Click(object sender, RoutedEventArgs e)
+        private void OnCalculateButtonClick(object sender, RoutedEventArgs e)
         {
             btnCalculate.IsEnabled = true;
-            var size = Convert.ToInt32(tbFirstSizeInput.Text);
+            SetMatrixSize();
 
-            _matrixController.Size = size;
+            matrixCDataGrid.Columns.Clear();
             _matrixController.Clear();
 
             ChangeValueForMatrix(matrixADataGrid);
             ChangeValueForMatrix(matrixBDataGrid);
+        }
+
+        private void SetMatrixSize()
+        {
+            int firstSize = Convert.ToInt32(tbFirstSizeInput.Text);
+
+            if (_isSquareMatrix)
+            {
+                _matrixController.Size = (firstSize, firstSize);
+            }
+            else
+            {
+                int secondSize = Convert.ToInt32(tbSecondSizeInput.Text);
+                _matrixController.Size = (firstSize, secondSize);
+            }
         }
 
         private void ChangeValueForMatrix(DataGrid matrixDataGrid)
@@ -83,8 +126,10 @@ namespace WPFMatrixOperations
 
         ~MainWindow()
         {
-            tbFirstSizeInput.TextChanged += OnSizeInput;
-            btnEnter.Click -= BtnEnter_Click;
+            cbSquareMatrix.Checked -= OnSquareMatrixChecked;
+            tbFirstSizeInput.TextChanged -= OnSizeInput;
+            tbSecondSizeInput.TextChanged -= OnSizeInput;
+            btnEnter.Click -= OnCalculateButtonClick;
             btnCalculate.Click -= OnCalculateSumButtonClick;
             matrixADataGrid.CellEditEnding -= OnMatrixCellEdit;
             matrixBDataGrid.CellEditEnding -= OnMatrixCellEdit;

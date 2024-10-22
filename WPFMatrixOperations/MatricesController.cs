@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace WPFMatrixOperations
@@ -11,15 +12,15 @@ namespace WPFMatrixOperations
     {
         private readonly Dictionary<DataGrid, Matrix<T>> _matrixTable = new();
 
-        public int Size { get; set; }
+        public (int X, int Y) Size { get; set; }
 
         private T[,] CreateDataArray(bool randomize, int maxValue = 10)
         {
             Random random = new();
-            T[,] array = new T[Size, Size];
-            for (int i = 0; i < Size; i++)
+            T[,] array = new T[Size.X, Size.Y];
+            for (int i = 0; i < Size.X; i++)
             {
-                for (int j = 0; j < Size; j++)
+                for (int j = 0; j < Size.Y; j++)
                 {
                     T value = default;
 
@@ -77,7 +78,7 @@ namespace WPFMatrixOperations
 
         private Matrix<T> FindSum()
         {
-            Matrix<T> resultMatrix = new(new T[Size, Size]);
+            Matrix<T> resultMatrix = new(new T[Size.X, Size.Y]);
             _matrixTable.Values.ToList().ForEach(x => resultMatrix += x);
             return resultMatrix;
         }

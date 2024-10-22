@@ -12,12 +12,13 @@
 
         public static Matrix<T> operator +(Matrix<T> a, Matrix<T> b)
         {
-            var N = b.array.GetLength(0);
-            var totalSum = new T[N, N];
+            var firstDimensionSize = b.array.GetLength(0);
+            var secondDimensionSize = b.array.GetLength(1);
+            var totalSum = new T[firstDimensionSize, secondDimensionSize];
 
-            for (int i = 0; i < N; i++)
+            for (int i = 0; i < firstDimensionSize; i++)
             {
-                for (int j = 0; j < N; j++)
+                for (int j = 0; j < secondDimensionSize; j++)
                 {
                     totalSum[i, j] = (T)((a.array[i, j] as dynamic) + b.array[i, j]);
                 }
