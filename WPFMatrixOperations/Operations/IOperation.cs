@@ -4,6 +4,6 @@ namespace WPFMatrixOperations
 {
     public interface IOperation
     {
-        Matrix<T> Perform<T>((int X, int Y) size, List<Matrix<T>> matrices);
+        Matrix<T> Perform<T>((Matrix<T> MatrixOne, Matrix<T> MatrixTwo) matrices);
     }
 }

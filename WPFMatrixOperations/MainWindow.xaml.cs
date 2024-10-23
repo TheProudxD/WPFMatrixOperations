@@ -52,7 +52,7 @@ namespace WPFMatrixOperations
                     _matrixController.SetOperation(new SumOperation());
                     break;
                 case 1:
-                    _matrixController.SetOperation(new SumOperation());
+                    _matrixController.SetOperation(new MultiplicationOperation());
                     break;
                 default:
                     MessageBox.Show("Выбрана не поддерживаемая операция", "Внимание!");

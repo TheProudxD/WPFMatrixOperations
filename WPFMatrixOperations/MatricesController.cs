@@ -11,14 +11,29 @@ namespace WPFMatrixOperations
         where T : struct
     {
         private readonly Dictionary<DataGrid, Matrix<T>> _matrixTable = new();
+
         private IOperation _operation;
 
         public (int X, int Y) Size { get; set; }
+
+        private void AddMatrixDataGrid(DataGrid matrixDataGrid, T[,] array)
+        {
+            Matrix<T> matrix = new(array);
+            if (_matrixTable.ContainsKey(matrixDataGrid) == false)
+            {
+                _matrixTable.Add(matrixDataGrid, matrix);
+            }
+            else
+            {
+                throw new Exception("Duplicate Matrix data grid");
+            }
+        }
 
         private T[,] CreateDataArray(bool randomize, int maxValue = 10)
         {
             Random random = new();
             T[,] array = new T[Size.X, Size.Y];
+
             for (int i = 0; i < Size.X; i++)
             {
                 for (int j = 0; j < Size.Y; j++)
@@ -43,7 +58,7 @@ namespace WPFMatrixOperations
                     }
                     else
                     {
-                        throw new ArgumentOutOfRangeException();
+                        throw new ArgumentOutOfRangeException("Unsupported data type");
                     }
 
                     array[i, j] = randomize ? value : default;
@@ -53,27 +68,18 @@ namespace WPFMatrixOperations
             return array;
         }
 
-        private void Add(DataGrid matrixDataGrid, T[,] array)
-        {
-            Matrix<T> matrix = new(array);
-            if (_matrixTable.ContainsKey(matrixDataGrid) == false)
-            {
-                _matrixTable.Add(matrixDataGrid, matrix);
-            }
-            else
-            {
-                throw new Exception();
-            }
+        public DataView GetOperationResult()
+        {;
+            List<Matrix<T>> matrices = _matrixTable.Values.ToList();
+            Matrix<T> operationResult = _operation.Perform((matrices[0], matrices[1]));
+
+            return ConvertArrayToDataTable(operationResult.Array);
         }
-
-        public void Clear() => _matrixTable.Clear();
-
-        public DataView GetOperationResult() => ConvertArrayToDataTable(_operation.Perform(Size, _matrixTable.Values.ToList()).Array);
 
         public DataView GetMatrixData(DataGrid dataGrid, bool randomize)
         {
-            var array = CreateDataArray(randomize);
-            Add(dataGrid, array);
+            T[,] array = CreateDataArray(randomize);
+            AddMatrixDataGrid(dataGrid, array);
             return ConvertArrayToDataTable(array);
         }
 
@@ -105,9 +111,8 @@ namespace WPFMatrixOperations
             matrix[x, y] = value;
         }
 
-        public void SetOperation(IOperation operation)
-        {
-            _operation = operation;
-        }
+        public void SetOperation(IOperation operation) => _operation = operation;
+
+        public void Clear() => _matrixTable.Clear();
     }
 }
