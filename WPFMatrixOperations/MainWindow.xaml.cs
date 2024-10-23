@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using WPFMatrixOperations.Extensions;
 
 namespace WPFMatrixOperations
 {
@@ -26,7 +27,9 @@ namespace WPFMatrixOperations
             cbSquareMatrix.IsChecked = true;
 
             OnSquareMatrixChecked(null, null);
+            cmbCalculationType.SelectedIndex = 0;
             SubscribeOnUI();
+            OnCalculationTypeChanged(cmbCalculationType, null);
         }
 
         private void SubscribeOnUI()
@@ -38,6 +41,23 @@ namespace WPFMatrixOperations
             btnCalculate.Click += OnCalculateSumButtonClick;
             matrixADataGrid.CellEditEnding += OnMatrixCellEdit;
             matrixBDataGrid.CellEditEnding += OnMatrixCellEdit;
+            cmbCalculationType.SelectionChanged += OnCalculationTypeChanged;
+        }
+
+        private void OnCalculationTypeChanged(object sender, SelectionChangedEventArgs e)
+        {
+            switch (((ComboBox)sender).SelectedIndex)
+            {
+                case 0:
+                    _matrixController.SetOperation(new SumOperation());
+                    break;
+                case 1:
+                    _matrixController.SetOperation(new SumOperation());
+                    break;
+                default:
+                    MessageBox.Show("Выбрана не поддерживаемая операция", "Внимание!");
+                    throw new Exception("Выбрана не поддерживаемая операция");
+            }
         }
 
         private void AmendMatrix(DataGrid matrixDataGrid)
@@ -86,7 +106,7 @@ namespace WPFMatrixOperations
         private void OnCalculateSumButtonClick(object sender, RoutedEventArgs e)
         {            
             matrixCDataGrid.Columns.Clear();
-            matrixCDataGrid.ItemsSource = _matrixController.GetSumData();
+            matrixCDataGrid.ItemsSource = _matrixController.GetOperationResult();
         }
 
         private void OnCalculateButtonClick(object sender, RoutedEventArgs e)

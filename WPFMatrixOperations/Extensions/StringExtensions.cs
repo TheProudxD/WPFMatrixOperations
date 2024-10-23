@@ -1,4 +1,4 @@
-﻿namespace WPFMatrixOperations
+﻿namespace WPFMatrixOperations.Extensions
 {
     public static class StringExtensions
     {

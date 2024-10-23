@@ -11,6 +11,7 @@ namespace WPFMatrixOperations
         where T : struct
     {
         private readonly Dictionary<DataGrid, Matrix<T>> _matrixTable = new();
+        private IOperation _operation;
 
         public (int X, int Y) Size { get; set; }
 
@@ -22,7 +23,7 @@ namespace WPFMatrixOperations
             {
                 for (int j = 0; j < Size.Y; j++)
                 {
-                    T value = default;
+                    T value;
 
                     if (typeof(T) == typeof(int))
                     {
@@ -44,8 +45,8 @@ namespace WPFMatrixOperations
                     {
                         throw new ArgumentOutOfRangeException();
                     }
-                    array[i, j] = randomize ? value : default;
 
+                    array[i, j] = randomize ? value : default;
                 }
             }
 
@@ -67,20 +68,13 @@ namespace WPFMatrixOperations
 
         public void Clear() => _matrixTable.Clear();
 
-        public DataView GetSumData() => ConvertArrayToDataTable(FindSum().Array);
+        public DataView GetOperationResult() => ConvertArrayToDataTable(_operation.Perform(Size, _matrixTable.Values.ToList()).Array);
 
         public DataView GetMatrixData(DataGrid dataGrid, bool randomize)
         {
             var array = CreateDataArray(randomize);
             Add(dataGrid, array);
             return ConvertArrayToDataTable(array);
-        }
-
-        private Matrix<T> FindSum()
-        {
-            Matrix<T> resultMatrix = new(new T[Size.X, Size.Y]);
-            _matrixTable.Values.ToList().ForEach(x => resultMatrix += x);
-            return resultMatrix;
         }
 
         public DataView ConvertArrayToDataTable(T[,] array)
@@ -109,6 +103,11 @@ namespace WPFMatrixOperations
         {
             var matrix = _matrixTable[dataGrid];
             matrix[x, y] = value;
+        }
+
+        public void SetOperation(IOperation operation)
+        {
+            _operation = operation;
         }
     }
 }
