@@ -57,7 +57,7 @@ namespace WPFMatrixOperations
         }
 
         public (int firstSize, int secondSize) GetSize()
-        {                
+        {
             int firstSize = Convert.ToInt32(_firstDimensionInputTextBox.Text);
             if (_isSquareMatrix)
             {

@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800" ResizeMode="CanMinimize">
     <Grid>
@@ -21,10 +20,13 @@
         <CheckBox Name="CbSquareMatrixFirstMatrix" Content="Квадратная матрица" HorizontalAlignment="Left" Margin="41,103,0,0" VerticalAlignment="Top"/>
         <CheckBox x:Name="CbSquareMatrixSecondMatrix" Content="Квадратная матрица" HorizontalAlignment="Left" Margin="422,103,0,0" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="41,123,0,0" TextWrapping="Wrap" Text="Введите размерность" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="631,558,0,0" TextWrapping="Wrap" Text="by Разгуляев Владислав 3-47" VerticalAlignment="Top" Width="169"/>
         <TextBlock HorizontalAlignment="Left" Margin="50,150,0,0" TextWrapping="Wrap" Text="A" VerticalAlignment="Top" Width="16" Height="16"/>
         <TextBlock HorizontalAlignment="Left" Margin="435,150,0,0" TextWrapping="Wrap" Text="B" VerticalAlignment="Top" Width="16" Height="16"/>
         <TextBlock TextWrapping="Wrap" Text="C" VerticalAlignment="Top" HorizontalAlignment="Left" Width="16" Height="16" Margin="324,359,0,0" RenderTransformOrigin="0.656,-0.466" />
         <TextBlock HorizontalAlignment="Left" Margin="422,123,0,0" TextWrapping="Wrap" Text="Введите размерность" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="46,53,0,0" TextWrapping="Wrap" Text="Время, затраченное на расчет:" VerticalAlignment="Top" Width="185"/>
+        <TextBlock Name="tbTimer" HorizontalAlignment="Left" Margin="231,53,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="107"/>
         <ComboBox Name="CmbCalculationType" Height="20" Width="auto" HorizontalAlignment="Left" Margin="432,34,0,0" VerticalAlignment="Top" SelectedIndex="0">
             <ComboBoxItem>Сложение</ComboBoxItem>
             <ComboBoxItem>Умножение</ComboBoxItem>

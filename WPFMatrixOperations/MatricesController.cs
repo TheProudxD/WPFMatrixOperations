@@ -58,6 +58,8 @@ namespace WPFMatrixOperations
 
         public DataView ConvertArrayToDataTable(T[,] array)
         {
+            if (array == null)
+                return null;
             DataTable dataTable = new();
 
             for (int i = 0; i < array.GetLength(1); i++)
@@ -88,7 +90,7 @@ namespace WPFMatrixOperations
                 throw new Exception("No operation setup");
 
             Matrix<T> operationResult = _operation.Perform((matrices[0], matrices[1]));
-            return operationResult.Array;
+            return operationResult?.Array;
         }
 
         public DataView GetOperationResultAsDataView() => ConvertArrayToDataTable(GetOperationResult());

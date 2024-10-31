@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
@@ -14,7 +15,7 @@ namespace WPFMatrixOperations
         public MainWindow()
         {
             InitializeComponent();
-            
+
             AmendMatrix(MatrixADataGrid);
             AmendMatrix(MatrixBDataGrid);
             AmendMatrix(MatrixCDataGrid);
@@ -31,10 +32,10 @@ namespace WPFMatrixOperations
 
             MatrixInput firstMatrixDimension = new(TbFirstSizeInputFirstMatrix, TbSecondSizeInputFirstMatrix, CbSquareMatrixFirstMatrix);
             MatrixInput secondMatrixDimension = new(TbFirstSizeInputSecondMatrix, TbSecondSizeInputSecondMatrix, CbSquareMatrixSecondMatrix);
-            
+
             _matrixTable.Add(MatrixADataGrid, firstMatrixDimension);
-            _matrixTable.Add(MatrixBDataGrid, secondMatrixDimension);            
-            
+            _matrixTable.Add(MatrixBDataGrid, secondMatrixDimension);
+
             SubscribeOnUI();
         }
 
@@ -100,7 +101,12 @@ namespace WPFMatrixOperations
         private void OnCalculateButtonClicked(object sender, RoutedEventArgs e)
         {
             MatrixCDataGrid.Columns.Clear();
-            MatrixCDataGrid.ItemsSource = _matrixController.GetOperationResultAsDataView();
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            System.Data.DataView result = _matrixController.GetOperationResultAsDataView();
+            stopwatch.Stop();
+
+            MatrixCDataGrid.ItemsSource = result;
+            tbTimer.Text = stopwatch.Elapsed.TotalMilliseconds.ToString() + "мс";
             BtnSave.IsEnabled = true;
         }
 
@@ -121,7 +127,7 @@ namespace WPFMatrixOperations
         {
             bool randomize = CbRandomize.IsChecked!.Value;
             (int first, int second) = _matrixTable[matrixDataGrid].GetSize();
-            
+
             matrixDataGrid.Columns.Clear();
             matrixDataGrid.ItemsSource = _matrixController.GetMatrixData(matrixDataGrid, randomize, first, second);
             BtnSave.IsEnabled = false;

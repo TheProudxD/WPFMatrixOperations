@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 
 namespace WPFMatrixOperations
 {
@@ -12,13 +13,24 @@ namespace WPFMatrixOperations
 
         public static Matrix<T> operator +(Matrix<T> a, Matrix<T> b)
         {
-            int firstDimensionSize = b.Array.GetLength(0);
-            int secondDimensionSize = b.Array.GetLength(1);
-            var totalSum = new T[firstDimensionSize, secondDimensionSize];
+            int firstMatrixRowCount = a.Array.GetLength(0);
+            int firstMatrixColumnCount = a.Array.GetLength(1);
 
-            for (int i = 0; i < firstDimensionSize; i++)
+            int secondMatrixRowCount = b.Array.GetLength(0);
+            int secondMatrixColumnCount = b.Array.GetLength(1);
+
+            if (firstMatrixRowCount != secondMatrixRowCount || firstMatrixColumnCount != secondMatrixColumnCount)
             {
-                for (int j = 0; j < secondDimensionSize; j++)
+                MessageBox.Show("Размерность матриц должна быть одинаковой", "Внимание!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+                //throw new Exception("The number of rows in the first matrix must be equal to the number of columns in the second one.");
+            }
+
+            var totalSum = new T[secondMatrixRowCount, secondMatrixColumnCount];
+
+            for (int i = 0; i < secondMatrixRowCount; i++)
+            {
+                for (int j = 0; j < secondMatrixColumnCount; j++)
                 {
                     totalSum[i, j] = (T)((a.Array[i, j] as dynamic) + (b.Array[i, j] as dynamic));
                 }
@@ -36,13 +48,14 @@ namespace WPFMatrixOperations
             int secondMatrixRowCount = b.Array.GetLength(0);
             int secondMatrixColumnCount = b.Array.GetLength(1);
 
-            if (firstMatrixRowCount != secondMatrixColumnCount)
+            if (firstMatrixColumnCount != secondMatrixRowCount)
             {
-                throw new Exception(
-                    "The number of rows in the first matrix must be equal to the number of columns in the second one.");
+                MessageBox.Show("Количество строк во второй матрице должно быть равно количеству столбцов во первой", "Внимание!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+                //throw new Exception("The number of rows in the first matrix must be equal to the number of columns in the second one.");
             }
 
-            var result = new T[secondMatrixRowCount, secondMatrixColumnCount];
+            var result = new T[Math.Min(firstMatrixRowCount, secondMatrixRowCount), Math.Min(firstMatrixColumnCount, secondMatrixColumnCount)];
 
             for (int i = 0; i < firstMatrixRowCount; i++)
             {
