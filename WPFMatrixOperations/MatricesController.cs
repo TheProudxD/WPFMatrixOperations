@@ -44,10 +44,6 @@ namespace WPFMatrixOperations
                     {
                         value = (T)(object)(random.NextSingle() * maxValue);
                     }
-                    else if (typeof(T) == typeof(long))
-                    {
-                        value = (T)(object)random.NextInt64(maxValue);
-                    }
                     else
                     {
                         throw new ArgumentOutOfRangeException("Unsupported data type");
@@ -59,7 +55,8 @@ namespace WPFMatrixOperations
 
             return array;
         }
-        private DataView ConvertArrayToDataTable(T[,] array)
+
+        public DataView ConvertArrayToDataTable(T[,] array)
         {
             DataTable dataTable = new();
 
@@ -83,7 +80,7 @@ namespace WPFMatrixOperations
             return dataTable.DefaultView;
         }
 
-        public DataView GetOperationResult()
+        public T[,] GetOperationResult()
         {
             List<Matrix<T>> matrices = _matrixTable.Values.ToList();
 
@@ -91,8 +88,10 @@ namespace WPFMatrixOperations
                 throw new Exception("No operation setup");
 
             Matrix<T> operationResult = _operation.Perform((matrices[0], matrices[1]));
-            return ConvertArrayToDataTable(operationResult.Array);
+            return operationResult.Array;
         }
+
+        public DataView GetOperationResultAsDataView() => ConvertArrayToDataTable(GetOperationResult());
 
         public DataView GetMatrixData(DataGrid dataGrid, bool randomize, int firstSize, int secondSize)
         {
@@ -101,8 +100,6 @@ namespace WPFMatrixOperations
             _matrixTable[dataGrid].Size = (firstSize, secondSize);
             return ConvertArrayToDataTable(array);
         }
-
-
 
         public void ChangeValueForMatrixAt(DataGrid dataGrid, int x, int y, T value)
         {

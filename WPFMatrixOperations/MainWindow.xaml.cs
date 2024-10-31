@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Win32;
 
 namespace WPFMatrixOperations
 {
@@ -23,6 +24,7 @@ namespace WPFMatrixOperations
             CbRandomize.IsChecked = true;
             CbSquareMatrixFirstMatrix.IsChecked = true;
             CbSquareMatrixSecondMatrix.IsChecked = true;
+            BtnSave.IsEnabled = false;
 
             CmbCalculationType.SelectedIndex = 0;
             OnCalculationTypeChanged(CmbCalculationType, null!);
@@ -47,6 +49,20 @@ namespace WPFMatrixOperations
             BtnInput.Click += OnInputButtonClicked;
             BtnCalculate.Click += OnCalculateButtonClicked;
             CmbCalculationType.SelectionChanged += OnCalculationTypeChanged;
+            BtnSave.Click += OnSaveButtonClicked;
+        }
+
+        private void OnSaveButtonClicked(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog dialog = CSVFileSaver.ShowSaveFileDialog();
+
+            if (dialog.ShowDialog() == true)
+            {
+                string filePath = dialog.FileName;
+
+                int[,] data = _matrixController.GetOperationResult();
+                CSVFileSaver.Save(filePath, data);
+            }
         }
 
         private void OnCalculationTypeChanged(object sender, SelectionChangedEventArgs e)
@@ -84,7 +100,8 @@ namespace WPFMatrixOperations
         private void OnCalculateButtonClicked(object sender, RoutedEventArgs e)
         {
             MatrixCDataGrid.Columns.Clear();
-            MatrixCDataGrid.ItemsSource = _matrixController.GetOperationResult();
+            MatrixCDataGrid.ItemsSource = _matrixController.GetOperationResultAsDataView();
+            BtnSave.IsEnabled = true;
         }
 
         private void OnInputButtonClicked(object sender, RoutedEventArgs e)
@@ -104,9 +121,10 @@ namespace WPFMatrixOperations
         {
             bool randomize = CbRandomize.IsChecked!.Value;
             (int first, int second) = _matrixTable[matrixDataGrid].GetSize();
-
+            
             matrixDataGrid.Columns.Clear();
             matrixDataGrid.ItemsSource = _matrixController.GetMatrixData(matrixDataGrid, randomize, first, second);
+            BtnSave.IsEnabled = false;
         }
 
         private void OnInputChanged() => BtnInput.IsEnabled = _matrixTable[MatrixADataGrid].IsInputValid() && _matrixTable[MatrixBDataGrid].IsInputValid();

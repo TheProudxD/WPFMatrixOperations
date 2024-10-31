@@ -12,21 +12,22 @@
         <DataGrid Height="auto" ColumnWidth="auto" Background="Aqua" HeadersVisibility="None" x:Name="MatrixCDataGrid" AutoGenerateColumns="True" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="339,367,0,0"/>
         <TextBox Name="TbFirstSizeInputFirstMatrix" HorizontalAlignment="Left" Margin="170,123,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45"/>
         <TextBox Name="TbSecondSizeInputFirstMatrix" HorizontalAlignment="Left" Margin="241,123,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45"/>
+        <TextBox Name="TbFirstSizeInputSecondMatrix" HorizontalAlignment="Left" Margin="551,123,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45"/>
+        <TextBox Name="TbSecondSizeInputSecondMatrix" HorizontalAlignment="Left" Margin="622,123,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45"/>
         <Button Name="BtnInput" Width="80" Content="Построить" HorizontalAlignment="Left" Margin="338,34,0,0" VerticalAlignment="Top"/>
         <Button Name="BtnCalculate" Content="Рассчитать" HorizontalAlignment="Left" Margin="556,35,0,0" VerticalAlignment="Top"/>
+        <Button Name="BtnSave" Content="Сохранить" HorizontalAlignment="Left" Margin="644,35,0,0" VerticalAlignment="Top"/>
         <CheckBox Name="CbRandomize"  Content="Заполнить случайно" HorizontalAlignment="Left" Margin="42,33,0,0" VerticalAlignment="Top"/>
         <CheckBox Name="CbSquareMatrixFirstMatrix" Content="Квадратная матрица" HorizontalAlignment="Left" Margin="41,103,0,0" VerticalAlignment="Top"/>
+        <CheckBox x:Name="CbSquareMatrixSecondMatrix" Content="Квадратная матрица" HorizontalAlignment="Left" Margin="422,103,0,0" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="41,123,0,0" TextWrapping="Wrap" Text="Введите размерность" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="50,150,0,0" TextWrapping="Wrap" Text="A" VerticalAlignment="Top" Width="16" Height="16"/>
         <TextBlock HorizontalAlignment="Left" Margin="435,150,0,0" TextWrapping="Wrap" Text="B" VerticalAlignment="Top" Width="16" Height="16"/>
         <TextBlock TextWrapping="Wrap" Text="C" VerticalAlignment="Top" HorizontalAlignment="Left" Width="16" Height="16" Margin="324,359,0,0" RenderTransformOrigin="0.656,-0.466" />
+        <TextBlock HorizontalAlignment="Left" Margin="422,123,0,0" TextWrapping="Wrap" Text="Введите размерность" VerticalAlignment="Top"/>
         <ComboBox Name="CmbCalculationType" Height="20" Width="auto" HorizontalAlignment="Left" Margin="432,34,0,0" VerticalAlignment="Top" SelectedIndex="0">
             <ComboBoxItem>Сложение</ComboBoxItem>
             <ComboBoxItem>Умножение</ComboBoxItem>
         </ComboBox>
-        <TextBox x:Name="TbFirstSizeInputSecondMatrix" HorizontalAlignment="Left" Margin="551,123,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45"/>
-        <TextBox x:Name="TbSecondSizeInputSecondMatrix" HorizontalAlignment="Left" Margin="622,123,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="45"/>
-        <TextBlock HorizontalAlignment="Left" Margin="422,123,0,0" TextWrapping="Wrap" Text="Введите размерность" VerticalAlignment="Top"/>
-        <CheckBox x:Name="CbSquareMatrixSecondMatrix" Content="Квадратная матрица" HorizontalAlignment="Left" Margin="422,103,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>
