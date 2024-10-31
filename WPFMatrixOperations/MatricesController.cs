@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Windows;
 using System.Windows.Controls;
 
 namespace WPFMatrixOperations
@@ -12,31 +11,24 @@ namespace WPFMatrixOperations
     {
         private readonly Dictionary<DataGrid, Matrix<T>> _matrixTable = new();
 
-        private IOperation _operation;
-
-        public (int X, int Y) Size { get; set; }
+        private IOperation _operation = null!;
 
         private void AddMatrixDataGrid(DataGrid matrixDataGrid, T[,] array)
         {
-            Matrix<T> matrix = new(array);
-            if (_matrixTable.ContainsKey(matrixDataGrid) == false)
-            {
-                _matrixTable.Add(matrixDataGrid, matrix);
-            }
-            else
+            if (_matrixTable.TryAdd(matrixDataGrid, new Matrix<T>(array)) == false)
             {
                 throw new Exception("Duplicate Matrix data grid");
             }
         }
 
-        private T[,] CreateDataArray(bool randomize, int maxValue = 10)
+        private T[,] CreateDataArray(DataGrid dataGrid, bool randomize, int firstSize, int secondSize, int maxValue = 10)
         {
             Random random = new();
-            T[,] array = new T[Size.X, Size.Y];
+            T[,] array = new T[firstSize, secondSize];
 
-            for (int i = 0; i < Size.X; i++)
+            for (int i = 0; i < firstSize; i++)
             {
-                for (int j = 0; j < Size.Y; j++)
+                for (int j = 0; j < secondSize; j++)
                 {
                     T value;
 
@@ -46,7 +38,7 @@ namespace WPFMatrixOperations
                     }
                     else if (typeof(T) == typeof(double))
                     {
-                        value = (T)(object)(random.NextDouble()* maxValue);
+                        value = (T)(object)(random.NextDouble() * maxValue);
                     }
                     else if (typeof(T) == typeof(float))
                     {
@@ -61,29 +53,13 @@ namespace WPFMatrixOperations
                         throw new ArgumentOutOfRangeException("Unsupported data type");
                     }
 
-                    array[i, j] = randomize ? value : default;
+                    array[i, j] = randomize ? value : default(T);
                 }
             }
 
             return array;
         }
-
-        public DataView GetOperationResult()
-        {;
-            List<Matrix<T>> matrices = _matrixTable.Values.ToList();
-            Matrix<T> operationResult = _operation.Perform((matrices[0], matrices[1]));
-
-            return ConvertArrayToDataTable(operationResult.Array);
-        }
-
-        public DataView GetMatrixData(DataGrid dataGrid, bool randomize)
-        {
-            T[,] array = CreateDataArray(randomize);
-            AddMatrixDataGrid(dataGrid, array);
-            return ConvertArrayToDataTable(array);
-        }
-
-        public DataView ConvertArrayToDataTable(T[,] array)
+        private DataView ConvertArrayToDataTable(T[,] array)
         {
             DataTable dataTable = new();
 
@@ -95,19 +71,42 @@ namespace WPFMatrixOperations
             for (int i = 0; i < array.GetLength(0); i++)
             {
                 DataRow row = dataTable.NewRow();
+
                 for (int j = 0; j < array.GetLength(1); j++)
                 {
                     row[j] = array[i, j];
                 }
+
                 dataTable.Rows.Add(row);
             }
 
             return dataTable.DefaultView;
         }
 
+        public DataView GetOperationResult()
+        {
+            List<Matrix<T>> matrices = _matrixTable.Values.ToList();
+
+            if (_operation == null)
+                throw new Exception("No operation setup");
+
+            Matrix<T> operationResult = _operation.Perform((matrices[0], matrices[1]));
+            return ConvertArrayToDataTable(operationResult.Array);
+        }
+
+        public DataView GetMatrixData(DataGrid dataGrid, bool randomize, int firstSize, int secondSize)
+        {
+            T[,] array = CreateDataArray(dataGrid, randomize, firstSize, secondSize);
+            AddMatrixDataGrid(dataGrid, array);            
+            _matrixTable[dataGrid].Size = (firstSize, secondSize);
+            return ConvertArrayToDataTable(array);
+        }
+
+
+
         public void ChangeValueForMatrixAt(DataGrid dataGrid, int x, int y, T value)
         {
-            var matrix = _matrixTable[dataGrid];
+            Matrix<T> matrix = _matrixTable[dataGrid];
             matrix[x, y] = value;
         }
 

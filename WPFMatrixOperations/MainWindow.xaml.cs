@@ -1,47 +1,52 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using WPFMatrixOperations.Extensions;
 
 namespace WPFMatrixOperations
 {
     public partial class MainWindow : Window
     {
         private readonly MatricesController<int> _matrixController = new();
-
-        private bool _isFirstInputEntered;
-        private bool _isSquareMatrix;
-        private bool _isSecondInputEntered;
+        private readonly Dictionary<DataGrid, MatrixInput> _matrixTable = new();
 
         public MainWindow()
         {
             InitializeComponent();
+            
+            AmendMatrix(MatrixADataGrid);
+            AmendMatrix(MatrixBDataGrid);
+            AmendMatrix(MatrixCDataGrid);
 
-            AmendMatrix(matrixADataGrid);
-            AmendMatrix(matrixBDataGrid);
-            AmendMatrix(matrixCDataGrid);
+            BtnInput.IsEnabled = false;
+            BtnCalculate.IsEnabled = false;
+            CbRandomize.IsChecked = true;
+            CbSquareMatrixFirstMatrix.IsChecked = true;
+            CbSquareMatrixSecondMatrix.IsChecked = true;
 
-            btnEnter.IsEnabled = false;
-            btnCalculate.IsEnabled = false;
-            cbRandomize.IsChecked = true;
-            cbSquareMatrix.IsChecked = true;
+            CmbCalculationType.SelectedIndex = 0;
+            OnCalculationTypeChanged(CmbCalculationType, null!);
 
-            OnSquareMatrixChecked(null, null);
-            cmbCalculationType.SelectedIndex = 0;
+            MatrixInput firstMatrixDimension = new(TbFirstSizeInputFirstMatrix, TbSecondSizeInputFirstMatrix, CbSquareMatrixFirstMatrix);
+            MatrixInput secondMatrixDimension = new(TbFirstSizeInputSecondMatrix, TbSecondSizeInputSecondMatrix, CbSquareMatrixSecondMatrix);
+            
+            _matrixTable.Add(MatrixADataGrid, firstMatrixDimension);
+            _matrixTable.Add(MatrixBDataGrid, secondMatrixDimension);            
+            
             SubscribeOnUI();
-            OnCalculationTypeChanged(cmbCalculationType, null);
         }
 
         private void SubscribeOnUI()
         {
-            cbSquareMatrix.Click += OnSquareMatrixChecked;
-            tbFirstSizeInput.TextChanged += OnSizeInput;
-            tbSecondSizeInput.TextChanged += OnSizeInput;
-            btnEnter.Click += OnCalculateButtonClick;
-            btnCalculate.Click += OnCalculateSumButtonClick;
-            matrixADataGrid.CellEditEnding += OnMatrixCellEdit;
-            matrixBDataGrid.CellEditEnding += OnMatrixCellEdit;
-            cmbCalculationType.SelectionChanged += OnCalculationTypeChanged;
+            foreach (var matrix in _matrixTable)
+            {
+                matrix.Value.InputChanged += OnInputChanged;
+                matrix.Key.CellEditEnding += OnMatrixCellEdited!;
+            }
+
+            BtnInput.Click += OnInputButtonClicked;
+            BtnCalculate.Click += OnCalculateButtonClicked;
+            CmbCalculationType.SelectionChanged += OnCalculationTypeChanged;
         }
 
         private void OnCalculationTypeChanged(object sender, SelectionChangedEventArgs e)
@@ -68,34 +73,7 @@ namespace WPFMatrixOperations
             matrixDataGrid.CanUserSortColumns = false;
         }
 
-        private void OnSquareMatrixChecked(object sender, RoutedEventArgs e)
-        {
-            _isSquareMatrix = cbSquareMatrix.IsChecked.Value;
-            tbSecondSizeInput.Visibility = _isSquareMatrix ? Visibility.Hidden : Visibility.Visible;
-            ChangeEnterButtonState();
-        }
-
-        private void OnSizeInput(object sender, TextChangedEventArgs e)
-        {
-            TextBox textBox = (TextBox)e.Source;
-            string content = textBox.Text;
-            bool valid = content.IsDigit(out int result) && result.MoreThanZero();
-
-            if (textBox == tbFirstSizeInput)
-            {
-                _isFirstInputEntered = valid;
-            }
-            else if (textBox == tbSecondSizeInput)
-            {
-                _isSecondInputEntered = valid;
-            }
-
-            ChangeEnterButtonState();
-        }
-
-        private void ChangeEnterButtonState() => btnEnter.IsEnabled = _isSquareMatrix ? _isFirstInputEntered : _isFirstInputEntered && _isSecondInputEntered;
-
-        private void OnMatrixCellEdit(object? sender, DataGridCellEditEndingEventArgs e)
+        private void OnMatrixCellEdited(object sender, DataGridCellEditEndingEventArgs e)
         {
             int x = e.Row.GetIndex();
             int y = e.Column.DisplayIndex;
@@ -103,56 +81,47 @@ namespace WPFMatrixOperations
             _matrixController.ChangeValueForMatrixAt((DataGrid)sender, x, y, value);
         }
 
-        private void OnCalculateSumButtonClick(object sender, RoutedEventArgs e)
-        {            
-            matrixCDataGrid.Columns.Clear();
-            matrixCDataGrid.ItemsSource = _matrixController.GetOperationResult();
+        private void OnCalculateButtonClicked(object sender, RoutedEventArgs e)
+        {
+            MatrixCDataGrid.Columns.Clear();
+            MatrixCDataGrid.ItemsSource = _matrixController.GetOperationResult();
         }
 
-        private void OnCalculateButtonClick(object sender, RoutedEventArgs e)
+        private void OnInputButtonClicked(object sender, RoutedEventArgs e)
         {
-            btnCalculate.IsEnabled = true;
-            SetMatrixSize();
+            BtnCalculate.IsEnabled = true;
 
-            matrixCDataGrid.Columns.Clear();
+            MatrixCDataGrid.Columns.Clear();
             _matrixController.Clear();
 
-            ChangeValueForMatrix(matrixADataGrid);
-            ChangeValueForMatrix(matrixBDataGrid);
-        }
-
-        private void SetMatrixSize()
-        {
-            int firstSize = Convert.ToInt32(tbFirstSizeInput.Text);
-
-            if (_isSquareMatrix)
+            foreach (var matrix in _matrixTable)
             {
-                _matrixController.Size = (firstSize, firstSize);
-            }
-            else
-            {
-                int secondSize = Convert.ToInt32(tbSecondSizeInput.Text);
-                _matrixController.Size = (firstSize, secondSize);
+                ChangeValueForMatrix(matrix.Key);
             }
         }
 
         private void ChangeValueForMatrix(DataGrid matrixDataGrid)
         {
-            bool randomize = cbRandomize.IsChecked.Value;
+            bool randomize = CbRandomize.IsChecked!.Value;
+            (int first, int second) = _matrixTable[matrixDataGrid].GetSize();
 
-            matrixDataGrid.Columns.Clear();         
-            matrixDataGrid.ItemsSource = _matrixController.GetMatrixData(matrixDataGrid, randomize);
+            matrixDataGrid.Columns.Clear();
+            matrixDataGrid.ItemsSource = _matrixController.GetMatrixData(matrixDataGrid, randomize, first, second);
         }
+
+        private void OnInputChanged() => BtnInput.IsEnabled = _matrixTable[MatrixADataGrid].IsInputValid() && _matrixTable[MatrixBDataGrid].IsInputValid();
 
         ~MainWindow()
         {
-            cbSquareMatrix.Checked -= OnSquareMatrixChecked;
-            tbFirstSizeInput.TextChanged -= OnSizeInput;
-            tbSecondSizeInput.TextChanged -= OnSizeInput;
-            btnEnter.Click -= OnCalculateButtonClick;
-            btnCalculate.Click -= OnCalculateSumButtonClick;
-            matrixADataGrid.CellEditEnding -= OnMatrixCellEdit;
-            matrixBDataGrid.CellEditEnding -= OnMatrixCellEdit;
+            foreach (var matrix in _matrixTable)
+            {
+                matrix.Value.InputChanged -= OnInputChanged;
+                matrix.Key.CellEditEnding -= OnMatrixCellEdited!;
+            }
+
+            BtnInput.Click -= OnInputButtonClicked;
+            BtnCalculate.Click -= OnCalculateButtonClicked;
+            CmbCalculationType.SelectionChanged -= OnCalculationTypeChanged;
         }
     }
 }
