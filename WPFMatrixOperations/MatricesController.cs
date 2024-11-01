@@ -1,116 +1,145 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using System.Windows.Controls;
 
-namespace WPFMatrixOperations
+namespace WPFMatrixOperations;
+
+public class MatricesController<T>
+    where T : struct
 {
-    public class MatricesController<T>
-        where T : struct
+    private readonly Dictionary<DataGrid, Matrix<T>> _matrixTable = new();
+
+    private IOperation _operation = null!;
+
+    private void AddMatrixDataGrid(DataGrid matrixDataGrid, T[,] array)
     {
-        private readonly Dictionary<DataGrid, Matrix<T>> _matrixTable = new();
-
-        private IOperation _operation = null!;
-
-        private void AddMatrixDataGrid(DataGrid matrixDataGrid, T[,] array)
+        if (_matrixTable.TryAdd(matrixDataGrid, new Matrix<T>(array)) == false)
         {
-            if (_matrixTable.TryAdd(matrixDataGrid, new Matrix<T>(array)) == false)
-            {
-                throw new Exception("Duplicate Matrix data grid");
-            }
+            throw new Exception("Duplicate Matrix data grid");
         }
+    }
 
-        private T[,] CreateDataArray(DataGrid dataGrid, bool randomize, int firstSize, int secondSize, int maxValue = 10)
+    private T[,] CreateDataArray(bool randomize, int firstSize, int secondSize, int maxValue = 10)
+    {
+        Random random = new();
+        var array = new T[firstSize, secondSize];
+
+        for (int i = 0; i < firstSize; i++)
         {
-            Random random = new();
-            T[,] array = new T[firstSize, secondSize];
-
-            for (int i = 0; i < firstSize; i++)
+            for (int j = 0; j < secondSize; j++)
             {
-                for (int j = 0; j < secondSize; j++)
+                T value;
+
+                if (typeof(T) == typeof(int))
                 {
-                    T value;
-
-                    if (typeof(T) == typeof(int))
-                    {
-                        value = (T)(object)random.Next(maxValue);
-                    }
-                    else if (typeof(T) == typeof(double))
-                    {
-                        value = (T)(object)(random.NextDouble() * maxValue);
-                    }
-                    else if (typeof(T) == typeof(float))
-                    {
-                        value = (T)(object)(random.NextSingle() * maxValue);
-                    }
-                    else
-                    {
-                        throw new ArgumentOutOfRangeException("Unsupported data type");
-                    }
-
-                    array[i, j] = randomize ? value : default(T);
+                    value = (T)(object)random.Next(maxValue);
                 }
-            }
-
-            return array;
-        }
-
-        public DataView ConvertArrayToDataTable(T[,] array)
-        {
-            if (array == null)
-                return null;
-            DataTable dataTable = new();
-
-            for (int i = 0; i < array.GetLength(1); i++)
-            {
-                dataTable.Columns.Add("Column " + (i + 1));
-            }
-
-            for (int i = 0; i < array.GetLength(0); i++)
-            {
-                DataRow row = dataTable.NewRow();
-
-                for (int j = 0; j < array.GetLength(1); j++)
+                else if (typeof(T) == typeof(double))
                 {
-                    row[j] = array[i, j];
+                    value = (T)(object)(random.NextDouble() * maxValue);
+                }
+                else if (typeof(T) == typeof(float))
+                {
+                    value = (T)(object)(random.NextSingle() * maxValue);
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Unsupported data type");
                 }
 
-                dataTable.Rows.Add(row);
+                array[i, j] = randomize ? value : default(T);
+            }
+        }
+
+        return array;
+    }
+
+    private DataView ConvertArrayToDataTable(T[,] array)
+    {
+        DataTable dataTable = new();
+
+        for (int i = 0; i < array.GetLength(1); i++)
+        {
+            dataTable.Columns.Add("Column " + (i + 1));
+        }
+
+        for (int i = 0; i < array.GetLength(0); i++)
+        {
+            DataRow row = dataTable.NewRow();
+
+            for (int j = 0; j < array.GetLength(1); j++)
+            {
+                row[j] = array[i, j];
             }
 
-            return dataTable.DefaultView;
+            dataTable.Rows.Add(row);
         }
 
-        public T[,] GetOperationResult()
+        return dataTable.DefaultView;
+    }
+
+    public T[,] GetOperationResult()
+    {
+        List<Matrix<T>> matrices = _matrixTable.Values.ToList();
+
+        if (_operation == null)
+            throw new Exception("No operation setup");
+
+        Matrix<T> operationResult = _operation.Perform((matrices[0], matrices[1]));
+        return operationResult.GetMatrix();
+    }
+
+    public DataView GetOperationResultAsDataView() => ConvertArrayToDataTable(GetOperationResult());
+
+    public DataView GetMatrixData(DataGrid dataGrid, bool randomize, int firstSize, int secondSize)
+    {
+        T[,] array = CreateDataArray(randomize, firstSize, secondSize);
+        AddMatrixDataGrid(dataGrid, array);
+        return ConvertArrayToDataTable(array);
+    }
+
+    public void ChangeValueForMatrixAt(DataGrid dataGrid, int x, int y, T value)
+    {
+        Matrix<T> matrix = _matrixTable[dataGrid];
+        matrix[x, y] = value;
+    }
+
+    public void SetOperation(IOperation operation) => _operation = operation;
+
+    public void Clear() => _matrixTable.Clear();
+    
+    public ReadOnlyCollection<Matrix<T>> GetAllMatrix() => _matrixTable.Values.ToList().AsReadOnly();
+    
+    public ReadOnlyCollection<DataGrid> GetAllDataGrids() => _matrixTable.Keys.ToList().AsReadOnly();
+
+    public bool TryParse(string text, out T result)
+    {
+        result = default(T);
+        
+        if (typeof(T) == typeof(int))
         {
-            List<Matrix<T>> matrices = _matrixTable.Values.ToList();
-
-            if (_operation == null)
-                throw new Exception("No operation setup");
-
-            Matrix<T> operationResult = _operation.Perform((matrices[0], matrices[1]));
-            return operationResult?.Array;
+            bool success = int.TryParse(text, out int res);
+            result = (T)(object)res;
+            return success;
         }
 
-        public DataView GetOperationResultAsDataView() => ConvertArrayToDataTable(GetOperationResult());
-
-        public DataView GetMatrixData(DataGrid dataGrid, bool randomize, int firstSize, int secondSize)
+        if (typeof(T) == typeof(double))
         {
-            T[,] array = CreateDataArray(dataGrid, randomize, firstSize, secondSize);
-            AddMatrixDataGrid(dataGrid, array);            
-            _matrixTable[dataGrid].Size = (firstSize, secondSize);
-            return ConvertArrayToDataTable(array);
+            bool success = double.TryParse(text, out double res);
+            result = (T)(object)res;
+            return success;
         }
 
-        public void ChangeValueForMatrixAt(DataGrid dataGrid, int x, int y, T value)
+        if (typeof(T) == typeof(float))
         {
-            Matrix<T> matrix = _matrixTable[dataGrid];
-            matrix[x, y] = value;
+            bool success = float.TryParse(text, out float res);
+            result = (T)(object)res;
+            return success;        
         }
-
-        public void SetOperation(IOperation operation) => _operation = operation;
-
-        public void Clear() => _matrixTable.Clear();
+        
+        throw new ArgumentOutOfRangeException("Unsupported data type");
     }
 }

@@ -35,6 +35,9 @@ namespace WPFMatrixOperations
             {
                 using StreamWriter writer = new(filePath);
                 writer.Write(csvData);
+                
+                MessageBox.Show("Успешно сохранено!", "Сохранено", MessageBoxButton.OK,
+                    MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -42,14 +45,12 @@ namespace WPFMatrixOperations
             }
         }
 
-        public static SaveFileDialog ShowSaveFileDialog()
-        {
-            return new SaveFileDialog()
+        public static SaveFileDialog ShowSaveFileDialog() =>
+            new()
             {
                 FileName = "Matrix.csv",
                 DefaultExt = ".cvs",
                 Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*"
             };
-        }
     }
 }

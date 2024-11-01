@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
@@ -30,8 +32,11 @@ namespace WPFMatrixOperations
             CmbCalculationType.SelectedIndex = 0;
             OnCalculationTypeChanged(CmbCalculationType, null!);
 
-            MatrixInput firstMatrixDimension = new(TbFirstSizeInputFirstMatrix, TbSecondSizeInputFirstMatrix, CbSquareMatrixFirstMatrix);
-            MatrixInput secondMatrixDimension = new(TbFirstSizeInputSecondMatrix, TbSecondSizeInputSecondMatrix, CbSquareMatrixSecondMatrix);
+            MatrixInput firstMatrixDimension = new(TbFirstSizeInputFirstMatrix, TbSecondSizeInputFirstMatrix,
+                CbSquareMatrixFirstMatrix);
+
+            MatrixInput secondMatrixDimension = new(TbFirstSizeInputSecondMatrix, TbSecondSizeInputSecondMatrix,
+                CbSquareMatrixSecondMatrix);
 
             _matrixTable.Add(MatrixADataGrid, firstMatrixDimension);
             _matrixTable.Add(MatrixBDataGrid, secondMatrixDimension);
@@ -41,7 +46,7 @@ namespace WPFMatrixOperations
 
         private void SubscribeOnUI()
         {
-            foreach (var matrix in _matrixTable)
+            foreach (KeyValuePair<DataGrid, MatrixInput> matrix in _matrixTable)
             {
                 matrix.Value.InputChanged += OnInputChanged;
                 matrix.Key.CellEditEnding += OnMatrixCellEdited!;
@@ -57,13 +62,13 @@ namespace WPFMatrixOperations
         {
             SaveFileDialog dialog = CSVFileSaver.ShowSaveFileDialog();
 
-            if (dialog.ShowDialog() == true)
-            {
-                string filePath = dialog.FileName;
+            if (dialog.ShowDialog() == false)
+                return;
 
-                int[,] data = _matrixController.GetOperationResult();
-                CSVFileSaver.Save(filePath, data);
-            }
+            string filePath = dialog.FileName;
+
+            int[,] data = _matrixController.GetOperationResult();
+            CSVFileSaver.Save(filePath, data);
         }
 
         private void OnCalculationTypeChanged(object sender, SelectionChangedEventArgs e)
@@ -91,11 +96,43 @@ namespace WPFMatrixOperations
         }
 
         private void OnMatrixCellEdited(object sender, DataGridCellEditEndingEventArgs e)
-        {
+        {            
+            CheckLetters();
+
             int x = e.Row.GetIndex();
             int y = e.Column.DisplayIndex;
-            int value = Convert.ToInt32(((TextBox)e.EditingElement).Text);
-            _matrixController.ChangeValueForMatrixAt((DataGrid)sender, x, y, value);
+
+            if (_matrixController.TryParse(((TextBox)e.EditingElement).Text, out var value) == false)
+            {
+                MessageBox.Show("Введите число, соответствующего типа", "Внимание!", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            else
+            {
+                _matrixController.ChangeValueForMatrixAt((DataGrid)sender, x, y, value);
+            }
+        }
+
+        private void CheckLetters()
+        {
+            bool isAllLettersDigits = true;
+            foreach (DataView dv in _matrixController.GetAllDataGrids().Select(dataGrid => dataGrid.ItemsSource as DataView))
+            {
+                DataTable table = dv.Table;
+                for (int i = 0; i < table.Rows.Count; i++)
+                {
+                    for (int j = 0; j < table.Columns.Count; j++)
+                    {
+                        if (_matrixController.TryParse(dv[i].Row[j].ToString()!, out var _) == false)
+                        {
+                            isAllLettersDigits = false;
+                            break;
+                        }
+                    } 
+                }
+            }      
+            
+            BtnCalculate.IsEnabled = isAllLettersDigits;
         }
 
         private void OnCalculateButtonClicked(object sender, RoutedEventArgs e)
@@ -106,21 +143,21 @@ namespace WPFMatrixOperations
             stopwatch.Stop();
 
             MatrixCDataGrid.ItemsSource = result;
-            tbTimer.Text = stopwatch.Elapsed.TotalMilliseconds.ToString() + "мс";
+            tbTimer.Text = stopwatch.Elapsed.TotalMilliseconds + "мс";
             BtnSave.IsEnabled = true;
         }
 
         private void OnInputButtonClicked(object sender, RoutedEventArgs e)
         {
-            BtnCalculate.IsEnabled = true;
-
             MatrixCDataGrid.Columns.Clear();
             _matrixController.Clear();
 
-            foreach (var matrix in _matrixTable)
+            foreach (KeyValuePair<DataGrid, MatrixInput> matrix in _matrixTable)
             {
                 ChangeValueForMatrix(matrix.Key);
             }
+            
+            CheckLetters();
         }
 
         private void ChangeValueForMatrix(DataGrid matrixDataGrid)
@@ -133,11 +170,12 @@ namespace WPFMatrixOperations
             BtnSave.IsEnabled = false;
         }
 
-        private void OnInputChanged() => BtnInput.IsEnabled = _matrixTable[MatrixADataGrid].IsInputValid() && _matrixTable[MatrixBDataGrid].IsInputValid();
+        private void OnInputChanged() => BtnInput.IsEnabled =
+            _matrixTable[MatrixADataGrid].IsInputValid() && _matrixTable[MatrixBDataGrid].IsInputValid();
 
         ~MainWindow()
         {
-            foreach (var matrix in _matrixTable)
+            foreach (KeyValuePair<DataGrid, MatrixInput> matrix in _matrixTable)
             {
                 matrix.Value.InputChanged -= OnInputChanged;
                 matrix.Key.CellEditEnding -= OnMatrixCellEdited!;

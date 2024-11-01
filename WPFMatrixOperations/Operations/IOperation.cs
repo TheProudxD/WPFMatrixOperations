@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace WPFMatrixOperations
+﻿namespace WPFMatrixOperations
 {
     public interface IOperation
     {
