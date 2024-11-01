@@ -1,4 +1,4 @@
-﻿namespace WPFMatrixOperations;
+﻿namespace MathLibrary.Operations;
 
 public class SumOperation : IOperation
 {

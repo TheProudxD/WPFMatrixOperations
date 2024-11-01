@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using System.Windows.Controls;
+using MathLibrary;
+using MathLibrary.Operations;
 
 namespace WPFMatrixOperations;
 
@@ -110,15 +112,15 @@ public class MatricesController<T>
     public void SetOperation(IOperation operation) => _operation = operation;
 
     public void Clear() => _matrixTable.Clear();
-    
+
     public ReadOnlyCollection<Matrix<T>> GetAllMatrix() => _matrixTable.Values.ToList().AsReadOnly();
-    
+
     public ReadOnlyCollection<DataGrid> GetAllDataGrids() => _matrixTable.Keys.ToList().AsReadOnly();
 
     public bool TryParse(string text, out T result)
     {
         result = default(T);
-        
+
         if (typeof(T) == typeof(int))
         {
             bool success = int.TryParse(text, out int res);
@@ -137,9 +139,9 @@ public class MatricesController<T>
         {
             bool success = float.TryParse(text, out float res);
             result = (T)(object)res;
-            return success;        
+            return success;
         }
-        
+
         throw new ArgumentOutOfRangeException("Unsupported data type");
     }
 }

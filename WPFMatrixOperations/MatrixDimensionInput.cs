@@ -11,9 +11,9 @@ namespace WPFMatrixOperations
         private bool _isSecondInputValid;
         private bool _isSquareMatrix;
 
-        private TextBox _firstDimensionInputTextBox;
-        private TextBox _secondDimensionInputTextBox;
-        private CheckBox _squareMatrixCheckBox;
+        private readonly TextBox _firstDimensionInputTextBox;
+        private readonly TextBox _secondDimensionInputTextBox;
+        private readonly CheckBox _squareMatrixCheckBox;
 
         public event Action InputChanged;
 
@@ -63,11 +63,9 @@ namespace WPFMatrixOperations
             {
                 return (firstSize, firstSize);
             }
-            else
-            {
-                int secondSize = Convert.ToInt32(_secondDimensionInputTextBox.Text);
-                return (firstSize, secondSize);
-            }
+
+            int secondSize = Convert.ToInt32(_secondDimensionInputTextBox.Text);
+            return (firstSize, secondSize);
         }
 
         public bool IsInputValid() => _isSquareMatrix ? _isFirstInputValid : _isFirstInputValid && _isSecondInputValid;

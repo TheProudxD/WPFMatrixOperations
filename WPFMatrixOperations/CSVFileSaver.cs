@@ -6,9 +6,9 @@ using Microsoft.Win32;
 namespace WPFMatrixOperations
 {
     public static class CSVFileSaver
-    {                    
+    {
         public static void Save<T>(string filePath, T[,] data)
-        {        
+        {
             string lineSeparator = Environment.NewLine;
             string columnSeparator = ";";
 
@@ -21,21 +21,24 @@ namespace WPFMatrixOperations
                 for (int j = 0; j < width; j++)
                 {
                     csvData += data[i, j];
+
                     if (j < width - 1)
                     {
                         csvData += columnSeparator;
                     }
                 }
+
                 if (i < height - 1)
                 {
                     csvData += lineSeparator;
                 }
             }
+
             try
             {
                 using StreamWriter writer = new(filePath);
                 writer.Write(csvData);
-                
+
                 MessageBox.Show("Успешно сохранено!", "Сохранено", MessageBoxButton.OK,
                     MessageBoxImage.Information);
             }
