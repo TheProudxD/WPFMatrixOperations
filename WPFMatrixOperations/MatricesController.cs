@@ -9,14 +9,13 @@ using MathLibrary.Operations;
 
 namespace WPFMatrixOperations;
 
-public class MatricesController<T>
-    where T : struct
+public class MatricesController<T> where T : struct
 {
     private readonly Dictionary<DataGrid, Matrix<T>> _matrixTable = new();
 
     private IOperation _operation = null!;
 
-    private void AddMatrixDataGrid(DataGrid matrixDataGrid, T[,] array)
+    private void AddMatrixDataGrid(DataGrid matrixDataGrid, T[,]? array)
     {
         if (_matrixTable.TryAdd(matrixDataGrid, new Matrix<T>(array)) == false)
         {
@@ -59,10 +58,14 @@ public class MatricesController<T>
         return array;
     }
 
-    private DataView ConvertArrayToDataTable(T[,] array)
+    private DataView ConvertArrayToDataTable(T[,]? array)
     {
         DataTable dataTable = new();
-
+        
+        if (array == null)
+        {
+            return dataTable.DefaultView;
+        }
         for (int i = 0; i < array.GetLength(1); i++)
         {
             dataTable.Columns.Add("Column " + (i + 1));
@@ -83,15 +86,15 @@ public class MatricesController<T>
         return dataTable.DefaultView;
     }
 
-    public T[,] GetOperationResult()
+    public T[,]? GetOperationResult()
     {
         List<Matrix<T>> matrices = _matrixTable.Values.ToList();
 
         if (_operation == null)
-            throw new Exception("No operation setup");
+            throw new Exception("No operation is set");
 
-        Matrix<T> operationResult = _operation.Perform((matrices[0], matrices[1]));
-        return operationResult.GetMatrix();
+        Matrix<T>? operationResult = _operation.Perform((matrices[0], matrices[1]));
+        return operationResult?.GetMatrix();
     }
 
     public DataView GetOperationResultAsDataView() => ConvertArrayToDataTable(GetOperationResult());
@@ -113,35 +116,7 @@ public class MatricesController<T>
 
     public void Clear() => _matrixTable.Clear();
 
-    public ReadOnlyCollection<Matrix<T>> GetAllMatrix() => _matrixTable.Values.ToList().AsReadOnly();
+    public ReadOnlyCollection<Matrix<T>> GetAllMatrices() => _matrixTable.Values.ToList().AsReadOnly();
 
     public ReadOnlyCollection<DataGrid> GetAllDataGrids() => _matrixTable.Keys.ToList().AsReadOnly();
-
-    public bool TryParse(string text, out T result)
-    {
-        result = default(T);
-
-        if (typeof(T) == typeof(int))
-        {
-            bool success = int.TryParse(text, out int res);
-            result = (T)(object)res;
-            return success;
-        }
-
-        if (typeof(T) == typeof(double))
-        {
-            bool success = double.TryParse(text, out double res);
-            result = (T)(object)res;
-            return success;
-        }
-
-        if (typeof(T) == typeof(float))
-        {
-            bool success = float.TryParse(text, out float res);
-            result = (T)(object)res;
-            return success;
-        }
-
-        throw new ArgumentOutOfRangeException("Unsupported data type");
-    }
 }

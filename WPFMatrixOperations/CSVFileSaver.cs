@@ -7,7 +7,7 @@ namespace WPFMatrixOperations
 {
     public static class CSVFileSaver
     {
-        public static void Save<T>(string filePath, T[,] data)
+        public static void Save<T>(string filePath, T[,]? data)
         {
             string lineSeparator = Environment.NewLine;
             string columnSeparator = ";";

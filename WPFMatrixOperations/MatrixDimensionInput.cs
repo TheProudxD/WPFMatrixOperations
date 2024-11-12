@@ -15,13 +15,14 @@ namespace WPFMatrixOperations
         private readonly TextBox _secondDimensionInputTextBox;
         private readonly CheckBox _squareMatrixCheckBox;
 
-        public event Action InputChanged;
+        public event Action? InputChanged;
 
-        public MatrixInput(TextBox firstDimensionInputTextBox, TextBox secondDimensionInputTextBox, CheckBox squareMatrixcheckBox)
+        public MatrixInput(TextBox firstDimensionInputTextBox, TextBox secondDimensionInputTextBox,
+            CheckBox squareMatrixCheckBox)
         {
             _firstDimensionInputTextBox = firstDimensionInputTextBox;
             _secondDimensionInputTextBox = secondDimensionInputTextBox;
-            _squareMatrixCheckBox = squareMatrixcheckBox;
+            _squareMatrixCheckBox = squareMatrixCheckBox;
 
             firstDimensionInputTextBox.TextChanged += OnSizeInput;
             secondDimensionInputTextBox.TextChanged += OnSizeInput;
@@ -59,6 +60,7 @@ namespace WPFMatrixOperations
         public (int firstSize, int secondSize) GetSize()
         {
             int firstSize = Convert.ToInt32(_firstDimensionInputTextBox.Text);
+
             if (_isSquareMatrix)
             {
                 return (firstSize, firstSize);

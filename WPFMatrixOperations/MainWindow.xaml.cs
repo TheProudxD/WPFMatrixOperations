@@ -7,12 +7,13 @@ using System.Windows;
 using System.Windows.Controls;
 using MathLibrary.Operations;
 using Microsoft.Win32;
+using WPFMatrixOperations.Extensions;
 
 namespace WPFMatrixOperations;
 
 public partial class MainWindow : Window
 {
-    private readonly MatricesController<float> _matrixController = new();
+    private readonly MatricesController<int> _matrixController = new();
     private readonly Dictionary<DataGrid, MatrixInput> _matrixTable = new();
 
     public MainWindow()
@@ -101,7 +102,7 @@ public partial class MainWindow : Window
         int x = e.Row.GetIndex();
         int y = e.Column.DisplayIndex;
 
-        if (_matrixController.TryParse(((TextBox)e.EditingElement).Text, out var value) == false)
+        if (((TextBox)e.EditingElement).Text.TryParse(out int value) == false)
         {
             MessageBox.Show("Введите число, соответствующего типа", "Внимание!", MessageBoxButton.OK,
                 MessageBoxImage.Error);
@@ -127,11 +128,11 @@ public partial class MainWindow : Window
             {
                 for (int j = 0; j < table.Columns.Count; j++)
                 {
-                    if (_matrixController.TryParse(dv[i].Row[j].ToString()!, out var _) == false)
-                    {
-                        isAllLettersDigits = false;
-                        break;
-                    }
+                    if (dv[i].Row[j].ToString()!.TryParse<int>(out _))
+                        continue;
+
+                    isAllLettersDigits = false;
+                    break;
                 }
             }
         }

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFMatrixOperations", "WPFM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathLibrary", "MathLibrary\MathLibrary.csproj", "{C18ABA88-F5D7-41E5-91AB-284B3F46C299}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatrixTests", "MatrixTests\MatrixTests.csproj", "{8A95D9FB-A038-4625-847D-2B31A7DC93AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C18ABA88-F5D7-41E5-91AB-284B3F46C299}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C18ABA88-F5D7-41E5-91AB-284B3F46C299}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C18ABA88-F5D7-41E5-91AB-284B3F46C299}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A95D9FB-A038-4625-847D-2B31A7DC93AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A95D9FB-A038-4625-847D-2B31A7DC93AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A95D9FB-A038-4625-847D-2B31A7DC93AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A95D9FB-A038-4625-847D-2B31A7DC93AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
